@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { TAROT_CARDS, READER_CHARACTERS, SPREAD_TYPES, type TarotCard, type ReaderCharacter } from "@shared/tarotData";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import MysticLoader from "@/components/MysticLoader";
 
 type DrawnCard = {
   cardId: string;
@@ -29,6 +30,156 @@ function shuffleAndDraw(count: number): TarotCard[] {
 }
 
 // ── Card Back ─────────────────────────────────────────────────
+// ── Card Swipe Carousel (scroll-snap, touch-native) ──────────────────────
+function CardSwipeCarousel({
+  drawnCards,
+  flippedCards,
+  currentCardIndex,
+  onIndexChange,
+  onFlip,
+}: {
+  drawnCards: DrawnCard[];
+  flippedCards: Set<number>;
+  currentCardIndex: number;
+  onIndexChange: (i: number) => void;
+  onFlip: (i: number) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Sync scroll position when currentCardIndex changes externally (e.g. dot click)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const itemWidth = el.clientWidth;
+    el.scrollTo({ left: currentCardIndex * itemWidth, behavior: "smooth" });
+  }, [currentCardIndex]);
+
+  // Update currentCardIndex when user swipes
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    if (idx !== currentCardIndex) onIndexChange(idx);
+  }, [currentCardIndex, onIndexChange]);
+
+  return (
+    <div className="relative w-full mb-6">
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a, transparent)" }} />
+      <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a, transparent)" }} />
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"] }}
+      >
+        {drawnCards.map((dc, i) => (
+          <div
+            key={i}
+            className="flex-shrink-0 w-full flex justify-center items-center snap-center py-2"
+          >
+            <SingleCardFlip
+              drawnCard={dc}
+              isFlipped={flippedCards.has(i)}
+              onFlip={() => onFlip(i)}
+            />
+          </div>
+        ))}
+      </div>
+      {/* Arrow hint buttons */}
+      {drawnCards.length > 1 && (
+        <div className="flex justify-between px-4 mt-2">
+          <button
+            onClick={() => onIndexChange(Math.max(0, currentCardIndex - 1))}
+            disabled={currentCardIndex === 0}
+            className="font-cinzel text-gold/40 hover:text-gold text-2xl disabled:opacity-10 transition-colors"
+          >&#8249;</button>
+          <span className="font-cinzel text-gold/30 text-xs self-center tracking-widest">SWIPE</span>
+          <button
+            onClick={() => onIndexChange(Math.min(drawnCards.length - 1, currentCardIndex + 1))}
+            disabled={currentCardIndex === drawnCards.length - 1}
+            className="font-cinzel text-gold/40 hover:text-gold text-2xl disabled:opacity-10 transition-colors"
+          >&#8250;</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Oracle Carousel (native touch swipe, centers middle on load) ──────────
+function OracleCarousel({
+  characters,
+  selectedId,
+  onSelect,
+}: {
+  characters: ReaderCharacter[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const CARD_WIDTH = 190;
+  const GAP = 20;
+
+  // Center the middle card on mount
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const middleIndex = Math.floor(characters.length / 2);
+    const offset = middleIndex * (CARD_WIDTH + GAP) - (el.clientWidth / 2 - CARD_WIDTH / 2);
+    el.scrollLeft = offset;
+  }, [characters.length]);
+
+  // Scroll to selected card when selectedId changes
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !selectedId) return;
+    const idx = characters.findIndex(c => c.id === selectedId);
+    if (idx === -1) return;
+    const offset = idx * (CARD_WIDTH + GAP) - (el.clientWidth / 2 - CARD_WIDTH / 2);
+    el.scrollTo({ left: offset, behavior: "smooth" });
+  }, [selectedId, characters]);
+
+  return (
+    <div className="relative w-full overflow-hidden">
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a, transparent)" }} />
+      <div className="absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a, transparent)" }} />
+      <div
+        ref={scrollRef}
+        className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"] }}
+      >
+        {/* Leading spacer to allow first card to center */}
+        <div className="flex-shrink-0" style={{ width: "calc(50vw - 95px - 20px)" }} />
+        {characters.map(r => (
+          <button
+            key={r.id}
+            onClick={() => onSelect(r.id)}
+            className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold flex-shrink-0 snap-center"
+            style={{
+              background: "rgba(17,17,17,0.85)",
+              borderColor: selectedId === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)",
+              width: `${CARD_WIDTH}px`,
+              transform: selectedId === r.id ? "scale(1.04)" : "scale(1)",
+              transition: "transform 0.3s ease, border-color 0.3s ease",
+            }}
+          >
+            <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
+              <img src={r.image} alt={r.name} className="w-full h-full object-cover" />
+            </div>
+            <div className="p-3">
+              <div className="font-cinzel text-gold text-xs tracking-wide mb-1">{r.name}</div>
+              <div className="font-cinzel text-xs" style={{ color: r.accentColor, fontSize: "0.6rem" }}>{r.title}</div>
+            </div>
+          </button>
+        ))}
+        {/* Trailing spacer */}
+        <div className="flex-shrink-0" style={{ width: "calc(50vw - 95px - 20px)" }} />
+      </div>
+    </div>
+  );
+}
+
 function CardBack({ large }: { large?: boolean }) {
   const size = large ? "w-48 md:w-64 h-72 md:h-96" : "w-20 h-32";
   return (
@@ -238,6 +389,11 @@ export default function Reading() {
     });
   };
 
+  // Show full-screen loading overlay while LLM generates
+  if (generateMutation.isPending) {
+    return <MysticLoader readerName={reader?.name} />;
+  }
+
   const handleReset = () => {
     setStep("select-spread");
     setDrawnCards([]);
@@ -278,45 +434,12 @@ export default function Reading() {
       <PageWrapper>
         <BackLink onClick={() => setStep("select-spread")} />
         <SectionTitle>Choose Your Oracle</SectionTitle>
-        {/* Horizontal scroll carousel */}
-        <div className="flex items-center gap-3 max-w-4xl mx-auto">
-          <button
-            onClick={() => {
-              const el = document.getElementById("oracle-carousel");
-              el?.scrollBy({ left: -220, behavior: "smooth" });
-            }}
-            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-2xl px-2 flex-shrink-0"
-          >‹</button>
-          <div
-            id="oracle-carousel"
-            className="flex gap-5 overflow-x-auto pb-4 flex-1 snap-x snap-mandatory"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {READER_CHARACTERS.map(r => (
-              <button
-                key={r.id}
-                onClick={() => { setSelectedReader(r.id); setStep("ask-question"); }}
-                className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold flex-shrink-0 snap-center"
-                style={{ background: "rgba(17,17,17,0.85)", borderColor: selectedReader === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)", width: "190px" }}
-              >
-                <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
-                  <img src={r.image} alt={r.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="p-3">
-                  <div className="font-cinzel text-gold text-xs tracking-wide mb-1">{r.name}</div>
-                  <div className="font-cinzel text-xs" style={{ color: r.accentColor, fontSize: "0.6rem" }}>{r.title}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={() => {
-              const el = document.getElementById("oracle-carousel");
-              el?.scrollBy({ left: 220, behavior: "smooth" });
-            }}
-            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-2xl px-2 flex-shrink-0"
-          >›</button>
-        </div>
+        <OracleCarousel
+          characters={READER_CHARACTERS}
+          selectedId={selectedReader}
+          onSelect={(id) => { setSelectedReader(id); setStep("ask-question"); }}
+        />
+        <p className="font-cinzel text-gold/30 text-xs text-center tracking-widest mt-4">SWIPE OR TAP TO CHOOSE</p>
       </PageWrapper>
     );
   }
@@ -399,28 +522,14 @@ export default function Reading() {
             "{question}"
           </p>
         )}
-        {/* Carousel: arrow left/right through cards */}
-        <div className="flex items-center gap-2 mb-6">
-          <button
-            onClick={() => setCurrentCardIndex(i => Math.max(0, i - 1))}
-            disabled={currentCardIndex === 0}
-            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-3xl px-2 flex-shrink-0 disabled:opacity-20"
-          >&#8249;</button>
-          <div className="flex-1 flex justify-center">
-            {currentCard && (
-              <SingleCardFlip
-                drawnCard={currentCard}
-                isFlipped={currentFlipped}
-                onFlip={handleFlipCurrent}
-              />
-            )}
-          </div>
-          <button
-            onClick={() => setCurrentCardIndex(i => Math.min(drawnCards.length - 1, i + 1))}
-            disabled={currentCardIndex === drawnCards.length - 1}
-            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-3xl px-2 flex-shrink-0 disabled:opacity-20"
-          >&#8250;</button>
-        </div>
+        {/* Card swipe carousel: scroll-snap, touch-native */}
+        <CardSwipeCarousel
+          drawnCards={drawnCards}
+          flippedCards={flippedCards}
+          currentCardIndex={currentCardIndex}
+          onIndexChange={setCurrentCardIndex}
+          onFlip={(i) => setFlippedCards(prev => { const n = new Set(prev); n.add(i); return n; })}
+        />
         {/* Actions */}
         <div className="flex flex-col items-center gap-3">
           {!currentFlipped && (

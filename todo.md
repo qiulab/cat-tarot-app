@@ -50,3 +50,10 @@
 - [x] Oracle selection: horizontal scroll carousel, slightly smaller images
 - [x] Card draw: horizontal scroll carousel with reveal-all button
 - [x] Reading result: always append "One Action to Take This Week" section
+
+## UX Improvements Round 3
+- [x] Oracle carousel: auto-center middle card on load, scroll to selected card
+- [x] Oracle carousel: native touch/swipe scroll (CSS scroll-snap + touch, fade edges)
+- [x] Card draw carousel: native touch/swipe scroll + touch-action pan-x
+- [x] LLM loading: full-screen mystical loading animation (orbiting stars, floating card, shimmer bar)
+- [x] General UX audit: swipe hint text added below oracle carousel
