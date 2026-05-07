@@ -21,6 +21,21 @@ Draw cards, choose your oracle, ask a question, and receive a fully AI-generated
 
 ---
 
+## 🃏 Card Artwork
+
+Three cards from the full 78-card deck, each a dark opulent Art Deco cat illustration:
+
+<div align="center">
+
+| The High Priestess | The Star | The Moon |
+|:---:|:---:|:---:|
+| <img src="https://cat-tarot-mue8fevu.manus.space/manus-storage/card_high_priestess_4e62bad3.png" width="200" alt="The High Priestess — a serene cat between two pillars, keeper of hidden mysteries" /> | <img src="https://cat-tarot-mue8fevu.manus.space/manus-storage/card_the_star_15bed3e3.png" width="200" alt="The Star — a luminous cat beneath a canopy of stars, pouring water into a still pool" /> | <img src="https://cat-tarot-mue8fevu.manus.space/manus-storage/card_the_moon_c83d90e8.png" width="200" alt="The Moon — a mysterious cat beneath a full moon, navigating the path between shadow and light" /> |
+| *Intuition · Sacred Knowledge* | *Hope · Renewal · Serenity* | *Illusion · Intuition · Dreams* |
+
+</div>
+
+---
+
 ## 📸 Preview
 
 | Landing Page | Reading Experience | Card Library |
@@ -33,7 +48,7 @@ Draw cards, choose your oracle, ask a question, and receive a fully AI-generated
 
 Mystic Paws Tarot is a full-stack web application that combines **AI-generated artwork**, **LLM-powered interpretations**, and a rich **dark Art Deco visual design** to deliver an immersive tarot reading experience.
 
-Every one of the 78 cards in the standard Rider-Waite-Smith deck has been reimagined as a **dark, opulent Art Deco cat illustration** — featuring stoic feline figures in royal robes, ornate gold borders, jewel-toned backgrounds, and dramatic painterly detail. The app then uses an LLM to generate personalised, narrative-style readings based on the drawn cards, their positions in the spread, and whether each card appears upright or reversed.
+Every one of the 78 cards in the standard Rider-Waite-Smith deck has been reimagined as a **dark, opulent Art Deco cat illustration** — featuring stoic feline figures in royal robes, ornate gold borders, jewel-toned backgrounds, and dramatic painterly detail. The app then uses **Groq Llama 3.3 70B** to generate personalised, narrative-style readings based on the drawn cards, their positions in the spread, and the chosen oracle character's personality.
 
 This project was built entirely with free tools and a fully custom AI image generation pipeline for all 78 card artworks.
 
@@ -42,11 +57,10 @@ This project was built entirely with free tools and a fully custom AI image gene
 ## 🔮 Features
 
 ### Tarot Spreads
-The app supports four spread types drawn from traditional Rider-Waite-Smith practice:
+The app supports three spread types drawn from traditional Rider-Waite-Smith practice:
 
 | Spread | Cards | Purpose |
 |--------|-------|---------|
-| **Single Card** | 1 | Daily draw or focused insight |
 | **Yes or No** | 1 | Direct answer to a binary question |
 | **Past · Present · Future** | 3 | Journey of a situation through time |
 | **Celtic Cross** | 10 | Full deep-dive reading with positional context |
@@ -69,11 +83,14 @@ All 78 cards are original AI-generated illustrations in a consistent **dark opul
 
 ### Reading Experience
 - **Animated card flip** — cards start face-down and flip with a smooth 3D CSS animation to reveal the illustration
-- **Reversed card logic** — each drawn card has a random chance of appearing reversed, which is reflected in the LLM prompt and interpretation
-- **LLM-powered narrative reading** — the oracle generates a rich, cohesive multi-paragraph reading for the full spread
-- **Card detail view** — click any drawn card to see its full image, upright/reversed meaning, keywords, and an individual AI interpretation
+- **Swipe carousel** — drawn cards are displayed in a touch-native horizontal swipe carousel with peek of adjacent cards and progress dots
+- **LLM-powered narrative reading** — the oracle generates a rich, cohesive multi-paragraph reading for the full spread, always ending with a concrete "One Action to Take This Week"
 - **Reading history** — all readings are saved per session to the database and viewable on the History page
 - **Card Library** — browse, filter by suit, and search all 78 cards with their meanings
+- **Share reading** — copy the full reading text to clipboard with one tap
+- **Haptic feedback** — card flip triggers a subtle vibration on supported mobile devices (Web Vibration API)
+- **Ambient music** — optional mystical background music with a mute/unmute toggle in the corner
+- **Full-screen loading overlay** — orbiting stars and rotating messages while the LLM generates the reading
 
 ---
 
@@ -81,14 +98,14 @@ All 78 cards are original AI-generated illustrations in a consistent **dark opul
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 19, TypeScript, Tailwind CSS 4, Framer Motion |
+| **Frontend** | React 19, TypeScript, Tailwind CSS 4 |
 | **Backend** | Node.js, Express 4, tRPC 11 |
 | **Database** | MySQL (via Drizzle ORM) |
-| **LLM** | Manus built-in LLM API (server-side, no key exposure) |
+| **LLM** | Groq Llama 3.3 70B (`llama-3.3-70b-versatile`) |
 | **Auth** | Manus OAuth (session cookie-based) |
 | **Storage** | S3-compatible object storage for card images |
-| **Fonts** | Cinzel Decorative, Cinzel, EB Garamond (Google Fonts) |
-| **Animations** | Framer Motion, CSS 3D card flip, CSS particle effects |
+| **Fonts** | Cinzel, Inter (Google Fonts) |
+| **Animations** | CSS 3D card flip, CSS scroll-snap carousel, CSS particle effects |
 | **Build** | Vite 7, esbuild, pnpm |
 
 ---
@@ -104,6 +121,8 @@ cat-tarot-app/
 │   │   ├── CardLibrary.tsx   # Browse all 78 cards with filter & search
 │   │   └── History.tsx       # Session reading history
 │   ├── components/
+│   │   ├── AmbientMusic.tsx        # Background music player with mute toggle
+│   │   ├── MysticLoader.tsx        # Full-screen LLM loading animation
 │   │   └── ParticleBackground.tsx  # Ambient floating particle effect
 │   └── index.css             # Dark Art Deco theme (CSS variables, animations)
 ├── server/
@@ -118,7 +137,7 @@ cat-tarot-app/
 
 **Type-safe end-to-end with tRPC** — all client-server communication uses tRPC procedures with Zod validation, eliminating the need for REST endpoints or manual type sharing.
 
-**LLM on the server only** — the LLM API key never reaches the client. All reading generation happens inside tRPC mutations, keeping credentials secure.
+**LLM on the server only** — the Groq API key never reaches the client. All reading generation happens inside tRPC mutations, keeping credentials secure.
 
 **78 cards as static shared data** — the full card dataset (names, meanings, keywords, image URLs) lives in `shared/tarotData.ts`, imported by both client and server. This avoids unnecessary database reads for static content while keeping card logic type-safe.
 
@@ -137,7 +156,7 @@ cd cat-tarot-app
 pnpm install
 
 # Set up environment variables
-# (requires DATABASE_URL, JWT_SECRET, and LLM API credentials)
+# (requires DATABASE_URL, JWT_SECRET, GROQ_API_KEY)
 cp .env.example .env
 
 # Run database migrations
@@ -175,7 +194,7 @@ Each card was individually prompted with its specific RWS symbolism (e.g., the t
 - **User accounts** — persist reading history across sessions with Manus OAuth login
 - **Daily card push notifications** — scheduled daily draw delivered via email or browser notification
 - **Card journaling** — allow users to write personal notes attached to each reading
-- **Shareable readings** — generate a unique URL for each reading to share with others
+- **Shareable reading URLs** — generate a unique permalink for each reading to share with others
 - **Additional oracle characters** — expand the reader roster with new personalities
 
 ---
