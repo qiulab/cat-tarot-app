@@ -3,7 +3,7 @@ import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { READER_CHARACTERS, SPREAD_TYPES, TAROT_CARDS } from "@shared/tarotData";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { invokeLLM } from "./_core/llm";
+// Groq Llama 3.3 70B used directly via fetch
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
@@ -91,19 +91,33 @@ ${input.spreadType === "yes-no" ? `For this Yes/No reading, begin by clearly sta
 
 Please provide a rich, personalized reading that weaves together all the cards in their positions, addressing the seeker's question or situation. Speak directly to the seeker in second person ("you").`;
 
-        const response = await invokeLLM({
-          messages: [
-            { role: "system", content: reader.systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
+        const groqKey = process.env.GROQ_API_KEY;
+        if (!groqKey) throw new Error("GROQ_API_KEY not set");
+
+        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${groqKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: reader.systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            max_tokens: 1024,
+            temperature: 0.85,
+          }),
         });
 
-        const rawContent = response.choices[0]?.message?.content;
-        const interpretation = typeof rawContent === "string"
-          ? rawContent
-          : Array.isArray(rawContent)
-            ? ((rawContent.find((p) => p.type === "text") as { type: "text"; text: string } | undefined)?.text ?? "The cards speak in silence today...")
-            : "The cards speak in silence today...";
+        if (!groqRes.ok) {
+          const errText = await groqRes.text();
+          throw new Error(`Groq API error: ${groqRes.status} ${errText}`);
+        }
+
+        const groqData = await groqRes.json() as { choices: Array<{ message: { content: string } }> };
+        const interpretation = groqData.choices[0]?.message?.content ?? "The cards have no message at this time.";
 
         // Save reading to database
         const db = await getDb();
