@@ -44,3 +44,9 @@
 - [x] Shorten oracle descriptions, cleaner layout
 - [x] Update LLM prompts: modern tone, concise, with highlights (no old-timey language)
 - [x] Make card images bigger/more prominent on mobile
+
+## UI Refinements Round 2
+- [x] Home: larger hero deck image, smaller title text, remove subtitle
+- [x] Oracle selection: horizontal scroll carousel, slightly smaller images
+- [x] Card draw: horizontal scroll carousel with reveal-all button
+- [x] Reading result: always append "One Action to Take This Week" section

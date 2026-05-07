@@ -89,7 +89,9 @@ ${cardDescriptions}
 
 ${input.spreadType === "yes-no" ? `For this Yes/No reading, begin by clearly stating "YES" or "NO" based on the card's energy, then explain the nuance.` : ""}
 
-Please provide a rich, personalized reading that weaves together all the cards in their positions, addressing the seeker's question or situation. Speak directly to the seeker in second person ("you").`;
+Please provide a rich, personalized reading that weaves together all the cards in their positions, addressing the seeker's question or situation. Speak directly to the seeker in second person ("you").
+
+At the very end, always include a section titled "**One Action to Take This Week**" with a single, concrete, practical action the seeker can take in the next 7 days based on the reading. Make it specific and actionable, not vague.`;
 
         const groqKey = process.env.GROQ_API_KEY;
         if (!groqKey) throw new Error("GROQ_API_KEY not set");

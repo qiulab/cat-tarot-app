@@ -278,29 +278,44 @@ export default function Reading() {
       <PageWrapper>
         <BackLink onClick={() => setStep("select-spread")} />
         <SectionTitle>Choose Your Oracle</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {READER_CHARACTERS.map(r => (
-            <button
-              key={r.id}
-              onClick={() => { setSelectedReader(r.id); setStep("ask-question"); }}
-              className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold"
-              style={{ background: "rgba(17,17,17,0.85)", borderColor: selectedReader === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)" }}
-            >
-              {/* Oracle card image */}
-              <div className="w-full aspect-[3/4] overflow-hidden">
-                <img
-                  src={r.image}
-                  alt={r.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <div className="font-cinzel text-gold text-sm tracking-wide mb-1">{r.name}</div>
-                <div className="font-cinzel text-xs mb-2" style={{ color: r.accentColor }}>{r.title}</div>
-                <p className="font-sans text-xs text-parchment/60 leading-relaxed">{r.description}</p>
-              </div>
-            </button>
-          ))}
+        {/* Horizontal scroll carousel */}
+        <div className="flex items-center gap-3 max-w-4xl mx-auto">
+          <button
+            onClick={() => {
+              const el = document.getElementById("oracle-carousel");
+              el?.scrollBy({ left: -220, behavior: "smooth" });
+            }}
+            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-2xl px-2 flex-shrink-0"
+          >‹</button>
+          <div
+            id="oracle-carousel"
+            className="flex gap-5 overflow-x-auto pb-4 flex-1 snap-x snap-mandatory"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {READER_CHARACTERS.map(r => (
+              <button
+                key={r.id}
+                onClick={() => { setSelectedReader(r.id); setStep("ask-question"); }}
+                className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold flex-shrink-0 snap-center"
+                style={{ background: "rgba(17,17,17,0.85)", borderColor: selectedReader === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)", width: "190px" }}
+              >
+                <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                  <img src={r.image} alt={r.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="p-3">
+                  <div className="font-cinzel text-gold text-xs tracking-wide mb-1">{r.name}</div>
+                  <div className="font-cinzel text-xs" style={{ color: r.accentColor, fontSize: "0.6rem" }}>{r.title}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              const el = document.getElementById("oracle-carousel");
+              el?.scrollBy({ left: 220, behavior: "smooth" });
+            }}
+            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-2xl px-2 flex-shrink-0"
+          >›</button>
         </div>
       </PageWrapper>
     );
@@ -357,76 +372,101 @@ export default function Reading() {
     const currentFlipped = flippedCards.has(currentCardIndex);
     const allFlipped = flippedCards.size === drawnCards.length;
     const isLastCard = currentCardIndex === drawnCards.length - 1;
-
+    // Reveal all cards at once
+    const handleRevealAll = () => {
+      const all = new Set(drawnCards.map((_, i) => i));
+      setFlippedCards(all);
+      setCurrentCardIndex(drawnCards.length - 1);
+    };
     return (
       <PageWrapper>
         <BackLink onClick={() => setStep("ask-question")} />
-        {/* Progress indicator */}
+        {/* Progress dots */}
         {drawnCards.length > 1 && (
-          <div className="flex justify-center gap-2 mb-6">
+          <div className="flex justify-center gap-2 mb-4">
             {drawnCards.map((_, i) => (
               <div
                 key={i}
-                className="w-2 h-2 rounded-full transition-all duration-300"
-                style={{
-                  background: flippedCards.has(i) ? "#c9a84c" : i === currentCardIndex ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.15)",
-                }}
+                className="w-2 h-2 rounded-full transition-all duration-300 cursor-pointer"
+                style={{ background: flippedCards.has(i) ? "#c9a84c" : i === currentCardIndex ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.15)" }}
+                onClick={() => setCurrentCardIndex(i)}
               />
             ))}
           </div>
         )}
-
         {question && (
-          <p className="font-sans text-center text-parchment/50 text-sm mb-6 max-w-xl mx-auto">
+          <p className="font-sans text-center text-parchment/50 text-sm mb-5 max-w-xl mx-auto">
             "{question}"
           </p>
         )}
-
-        {/* Current card */}
-        {currentCard && (
-          <div className="flex flex-col items-center mb-8">
-            <SingleCardFlip
-              drawnCard={currentCard}
-              isFlipped={currentFlipped}
-              onFlip={handleFlipCurrent}
-            />
-            <div className="mt-6 flex flex-col items-center gap-3">
-              {!currentFlipped && (
-                <button
-                  onClick={handleFlipCurrent}
-                  className="font-cinzel tracking-widest text-sm px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 uppercase pulse-gold"
-                  style={{ letterSpacing: "0.2em" }}
-                >
-                  Reveal Card
-                </button>
-              )}
-              {currentFlipped && !isLastCard && (
+        {/* Carousel: arrow left/right through cards */}
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            onClick={() => setCurrentCardIndex(i => Math.max(0, i - 1))}
+            disabled={currentCardIndex === 0}
+            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-3xl px-2 flex-shrink-0 disabled:opacity-20"
+          >&#8249;</button>
+          <div className="flex-1 flex justify-center">
+            {currentCard && (
+              <SingleCardFlip
+                drawnCard={currentCard}
+                isFlipped={currentFlipped}
+                onFlip={handleFlipCurrent}
+              />
+            )}
+          </div>
+          <button
+            onClick={() => setCurrentCardIndex(i => Math.min(drawnCards.length - 1, i + 1))}
+            disabled={currentCardIndex === drawnCards.length - 1}
+            className="font-cinzel text-gold/50 hover:text-gold transition-colors text-3xl px-2 flex-shrink-0 disabled:opacity-20"
+          >&#8250;</button>
+        </div>
+        {/* Actions */}
+        <div className="flex flex-col items-center gap-3">
+          {!currentFlipped && (
+            <button
+              onClick={handleFlipCurrent}
+              className="font-cinzel tracking-widest text-sm px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 uppercase pulse-gold"
+              style={{ letterSpacing: "0.2em" }}
+            >
+              Reveal Card
+            </button>
+          )}
+          {currentFlipped && !allFlipped && (
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              {!isLastCard && (
                 <button
                   onClick={handleNextCard}
                   className="font-cinzel tracking-widest text-sm px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 uppercase"
                   style={{ letterSpacing: "0.2em" }}
                 >
-                  Next Card →
+                  Next Card &#8594;
                 </button>
               )}
-              {currentFlipped && isLastCard && (
-                <button
-                  onClick={handleGetReading}
-                  disabled={generateMutation.isPending}
-                  className="font-cinzel tracking-widest text-sm px-10 py-4 border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 uppercase pulse-gold disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ letterSpacing: "0.25em" }}
-                >
-                  {generateMutation.isPending ? "Reading the cards..." : `Get ${reader?.name}'s Reading`}
-                </button>
-              )}
+              <button
+                onClick={handleRevealAll}
+                className="font-cinzel tracking-widest text-xs px-6 py-2 border border-gold/40 text-gold/50 hover:border-gold hover:text-gold transition-all duration-300 uppercase"
+                style={{ letterSpacing: "0.15em" }}
+              >
+                Reveal All
+              </button>
             </div>
-          </div>
-        )}
-
-        {/* Already revealed cards (small) */}
+          )}
+          {allFlipped && (
+            <button
+              onClick={handleGetReading}
+              disabled={generateMutation.isPending}
+              className="font-cinzel tracking-widest text-sm px-10 py-4 border border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 uppercase pulse-gold disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ letterSpacing: "0.25em" }}
+            >
+              {generateMutation.isPending ? "Reading the cards..." : `Get ${reader?.name}'s Reading`}
+            </button>
+          )}
+        </div>
+        {/* Revealed cards strip */}
         {flippedCards.size > 1 && (
-          <div className="flex flex-wrap justify-center gap-3 mt-4 opacity-60">
-            {drawnCards.slice(0, currentCardIndex).map((dc) => (
+          <div className="flex flex-wrap justify-center gap-3 mt-8 opacity-60">
+            {drawnCards.filter((_, i) => flippedCards.has(i)).map((dc) => (
               <SmallCard key={dc.cardId} drawnCard={dc} />
             ))}
           </div>

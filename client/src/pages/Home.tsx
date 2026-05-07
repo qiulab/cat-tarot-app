@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useRef } from "react";
 import { READER_CHARACTERS, SPREAD_TYPES } from "@shared/tarotData";
 import { motion } from "framer-motion";
 
@@ -11,6 +12,8 @@ const SPREAD_COLORS: Record<string, string> = {
 const DECK_HERO = "/manus-storage/deck_hero_1547baae.png";
 
 export default function Home() {
+  const oracleRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="relative min-h-screen overflow-hidden" style={{ zIndex: 1 }}>
       {/* Background gradient */}
@@ -41,10 +44,10 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* Hero — deck image as focal point */}
-        <section className="container max-w-5xl mx-auto px-6 pt-14 pb-12">
-          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-            {/* Deck art */}
+        {/* Hero — deck image as main focal point */}
+        <section className="container max-w-5xl mx-auto px-6 pt-10 pb-12">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-14">
+            {/* Deck art — larger */}
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -52,10 +55,10 @@ export default function Home() {
               className="flex-shrink-0 float-anim"
             >
               <div
-                className="w-52 md:w-72 rounded-lg overflow-hidden"
+                className="w-72 md:w-96 rounded-lg overflow-hidden"
                 style={{
                   border: "2px solid rgba(201,168,76,0.6)",
-                  boxShadow: "0 0 50px rgba(201,168,76,0.3), 0 0 100px rgba(74,29,122,0.3)",
+                  boxShadow: "0 0 60px rgba(201,168,76,0.35), 0 0 120px rgba(74,29,122,0.3)",
                 }}
               >
                 <img
@@ -66,7 +69,7 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Title + CTA */}
+            {/* Title + CTA — smaller title */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -74,7 +77,7 @@ export default function Home() {
               className="text-center md:text-left"
             >
               <h1
-                className="font-display text-5xl md:text-7xl mb-4 leading-tight"
+                className="font-display text-4xl md:text-5xl mb-5 leading-tight"
                 style={{
                   background:
                     "linear-gradient(135deg, #8b6914 0%, #c9a84c 40%, #e8c96a 60%, #c9a84c 80%, #8b6914 100%)",
@@ -88,13 +91,9 @@ export default function Home() {
                 Tarot
               </h1>
 
-              <div className="ornate-divider max-w-xs mb-5 md:mx-0 mx-auto">
+              <div className="ornate-divider max-w-xs mb-7 md:mx-0 mx-auto">
                 <span className="font-cinzel text-xs text-amber-500/60 tracking-[0.3em]">✦ ✦ ✦</span>
               </div>
-
-              <p className="font-sans text-base text-amber-100/60 max-w-md mb-8 leading-relaxed">
-                78 hand-crafted cat tarot cards. Three oracle readers. Personalized AI readings.
-              </p>
 
               <Link href="/reading">
                 <button
@@ -131,7 +130,6 @@ export default function Home() {
                     <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-amber-600/30" />
                     <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-amber-600/30" />
                     <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-amber-600/30" />
-
                     <div className="font-cinzel text-amber-400 text-sm tracking-widest mb-2 group-hover:text-amber-300 transition-colors">
                       {spread.name}
                     </div>
@@ -148,48 +146,68 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Oracles */}
+        {/* Oracles — horizontal scroll carousel */}
         <div className="ornate-divider max-w-2xl mx-auto px-6 mb-10">
           <span className="font-cinzel text-xs text-amber-600/40 tracking-[0.3em]">◆ Choose Your Oracle ◆</span>
         </div>
 
-        <section className="container max-w-5xl mx-auto px-6 mb-20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {READER_CHARACTERS.map((reader, i) => (
-              <motion.div
-                key={reader.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + i * 0.15 }}
-              >
-                <Link href={`/reading?reader=${reader.id}`}>
-                  <div
-                    className="deco-border overflow-hidden cursor-pointer transition-all duration-300 hover:glow-gold group"
-                    style={{ background: "rgba(17,17,17,0.85)" }}
-                  >
-                    {/* Oracle card image */}
-                    <div className="w-full aspect-[3/4] overflow-hidden">
-                      <img
-                        src={reader.image}
-                        alt={reader.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="p-4 text-center">
-                      <h3 className="font-cinzel text-amber-400 text-sm tracking-wide mb-1 group-hover:text-amber-300 transition-colors">
-                        {reader.name}
-                      </h3>
-                      <div className="font-cinzel text-xs tracking-widest mb-2" style={{ color: reader.accentColor }}>
-                        {reader.title}
+        <section className="mb-20">
+          {/* Scroll hint arrows */}
+          <div className="flex items-center gap-3 px-6 mb-4 max-w-5xl mx-auto">
+            <button
+              onClick={() => oracleRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
+              className="font-cinzel text-amber-600/50 hover:text-amber-400 transition-colors text-lg px-2"
+              aria-label="Scroll left"
+            >
+              ‹
+            </button>
+            <div
+              ref={oracleRef}
+              className="flex gap-5 overflow-x-auto pb-4 flex-1 snap-x snap-mandatory"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {READER_CHARACTERS.map((reader, i) => (
+                <motion.div
+                  key={reader.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 + i * 0.15 }}
+                  className="flex-shrink-0 snap-center"
+                  style={{ width: "200px" }}
+                >
+                  <Link href={`/reading?reader=${reader.id}`}>
+                    <div
+                      className="deco-border overflow-hidden cursor-pointer transition-all duration-300 hover:glow-gold group"
+                      style={{ background: "rgba(17,17,17,0.85)" }}
+                    >
+                      {/* Oracle card image — slightly smaller */}
+                      <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                        <img
+                          src={reader.image}
+                          alt={reader.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                       </div>
-                      <p className="font-sans text-xs text-amber-100/60 leading-relaxed">
-                        {reader.description}
-                      </p>
+                      <div className="p-3 text-center">
+                        <h3 className="font-cinzel text-amber-400 text-xs tracking-wide mb-1 group-hover:text-amber-300 transition-colors">
+                          {reader.name}
+                        </h3>
+                        <div className="font-cinzel text-xs tracking-widest" style={{ color: reader.accentColor, fontSize: "0.6rem" }}>
+                          {reader.title}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+            <button
+              onClick={() => oracleRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
+              className="font-cinzel text-amber-600/50 hover:text-amber-400 transition-colors text-lg px-2"
+              aria-label="Scroll right"
+            >
+              ›
+            </button>
           </div>
         </section>
 
