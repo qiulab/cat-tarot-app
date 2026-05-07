@@ -1,0 +1,1 @@
+ALTER TABLE `readings` MODIFY COLUMN `readerCharacterId` varchar(64) NOT NULL DEFAULT 'mystic-tabby';

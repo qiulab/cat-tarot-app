@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -43,6 +44,15 @@
 }
 
 :root {
+  /* Art Deco Tarot Palette */
+  --gold: #c9a84c;
+  --gold-light: #e8c96a;
+  --gold-dark: #8b6914;
+  --deep-black: #0a0a0a;
+  --card-bg: #111111;
+  --jewel-purple: #4a1d7a;
+  --parchment: #e8d5a3;
+
   --primary: var(--color-blue-700);
   --primary-foreground: var(--color-blue-50);
   --sidebar-primary: var(--color-blue-600);
@@ -53,23 +63,23 @@
   --chart-4: var(--color-blue-700);
   --chart-5: var(--color-blue-800);
   --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
+  --background: oklch(0.07 0 0);
+  --foreground: oklch(0.88 0.04 85);
+  --card: oklch(0.1 0 0);
+  --card-foreground: oklch(0.88 0.04 85);
+  --popover: oklch(0.1 0 0);
+  --popover-foreground: oklch(0.88 0.04 85);
+  --secondary: oklch(0.18 0.04 290);
+  --secondary-foreground: oklch(0.88 0.04 85);
+  --muted: oklch(0.14 0 0);
+  --muted-foreground: oklch(0.55 0.03 85);
+  --accent: oklch(0.22 0.08 290);
+  --accent-foreground: oklch(0.88 0.04 85);
+  --destructive: oklch(0.45 0.18 25);
+  --destructive-foreground: oklch(0.88 0.04 85);
+  --border: oklch(0.35 0.06 85);
+  --input: oklch(0.12 0 0);
+  --ring: oklch(0.7 0.12 85);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.235 0.015 65);
   --sidebar-accent: oklch(0.967 0.001 286.375);
@@ -79,27 +89,27 @@
 }
 
 .dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
+  --primary: oklch(0.7 0.12 85);
+  --primary-foreground: oklch(0.07 0 0);
+  --sidebar-primary: oklch(0.7 0.12 85);
+  --sidebar-primary-foreground: oklch(0.07 0 0);
+  --background: oklch(0.07 0 0);
+  --foreground: oklch(0.88 0.04 85);
+  --card: oklch(0.1 0 0);
+  --card-foreground: oklch(0.88 0.04 85);
+  --popover: oklch(0.1 0 0);
+  --popover-foreground: oklch(0.88 0.04 85);
+  --secondary: oklch(0.18 0.04 290);
+  --secondary-foreground: oklch(0.88 0.04 85);
+  --muted: oklch(0.14 0 0);
+  --muted-foreground: oklch(0.55 0.03 85);
+  --accent: oklch(0.22 0.08 290);
+  --accent-foreground: oklch(0.88 0.04 85);
+  --destructive: oklch(0.45 0.18 25);
+  --destructive-foreground: oklch(0.88 0.04 85);
+  --border: oklch(0.35 0.06 85);
+  --input: oklch(0.12 0 0);
+  --ring: oklch(0.7 0.12 85);
   --chart-1: var(--color-blue-300);
   --chart-2: var(--color-blue-500);
   --chart-3: var(--color-blue-600);
@@ -119,6 +129,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'EB Garamond', Georgia, serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -175,3 +190,132 @@
     }
   }
 }
+/* ── Art Deco Custom Utilities ───────────────────────────────── */
+.text-gold { color: var(--gold); }
+.text-gold-light { color: var(--gold-light); }
+.text-parchment { color: var(--parchment); }
+.bg-deep-black { background-color: var(--deep-black); }
+.bg-card-bg { background-color: var(--card-bg); }
+.border-gold { border-color: var(--gold); }
+.border-gold-dark { border-color: var(--gold-dark); }
+
+.font-display { font-family: 'Cinzel Decorative', serif; }
+.font-cinzel { font-family: 'Cinzel', serif; }
+.font-garamond { font-family: 'EB Garamond', Georgia, serif; }
+
+/* ── Card Flip Animation ─────────────────────────────────────── */
+.card-container { perspective: 1200px; }
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-inner.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-front { transform: rotateY(180deg); }
+
+/* ── Reversed card ───────────────────────────────────────────── */
+.card-reversed { transform: rotate(180deg); }
+
+/* ── Glow effects ────────────────────────────────────────────── */
+.glow-gold { box-shadow: 0 0 20px rgba(201,168,76,0.35), 0 0 40px rgba(201,168,76,0.12); }
+.glow-purple { box-shadow: 0 0 20px rgba(74,29,122,0.5), 0 0 40px rgba(74,29,122,0.2); }
+
+/* ── Ornate divider ──────────────────────────────────────────── */
+.ornate-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--gold);
+}
+.ornate-divider::before,
+.ornate-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+
+/* ── Deco border ─────────────────────────────────────────────── */
+.deco-border {
+  border: 1px solid var(--gold);
+  position: relative;
+}
+.deco-border::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(201,168,76,0.3);
+  pointer-events: none;
+}
+
+/* ── Stars background ────────────────────────────────────────── */
+.stars-bg {
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(201,168,76,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 12%, rgba(201,168,76,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 75%, rgba(201,168,76,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 35%, rgba(255,255,255,0.15) 0%, transparent 100%);
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 8px rgba(201,168,76,0.3); }
+  50% { box-shadow: 0 0 28px rgba(201,168,76,0.7), 0 0 50px rgba(201,168,76,0.25); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.float-anim { animation: float 3.5s ease-in-out infinite; }
+.fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+.pulse-gold { animation: pulseGold 2.5s ease-in-out infinite; }
+.shimmer {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Tarot prose ─────────────────────────────────────────────── */
+.tarot-prose p {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  line-height: 1.85;
+  color: var(--parchment);
+  margin-bottom: 1.2rem;
+}
+.tarot-prose strong { color: var(--gold-light); }
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }

@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `readings` MODIFY COLUMN `sessionId` varchar(128) NOT NULL",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3DJ948toYKJjbEi.98fe6767abca --database MuE8feVUwhiUxHvEHZ9bkM --execute ALTER TABLE `readings` MODIFY COLUMN `sessionId` varchar(128) NOT NULL",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1157
+}
