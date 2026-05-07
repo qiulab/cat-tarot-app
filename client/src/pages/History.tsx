@@ -54,7 +54,7 @@ export default function History() {
           <div className="ornate-divider max-w-xs mx-auto mb-4">
             <span className="font-cinzel text-xs text-gold/30 tracking-[0.3em]">✦ ✦ ✦</span>
           </div>
-          <p className="font-garamond text-parchment/60 italic">
+          <p className="font-sans text-parchment/60">
             The echoes of your consultations with the feline oracles
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function History() {
                         </span>
                       </div>
                       {reading.question && (
-                        <p className="font-garamond text-parchment/60 italic text-sm mt-1 truncate">
+                        <p className="font-sans text-parchment/60 text-sm mt-1 truncate">
                           "{reading.question}"
                         </p>
                       )}

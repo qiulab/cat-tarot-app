@@ -55,7 +55,7 @@ export default function CardLibrary() {
           <div className="ornate-divider max-w-xs mx-auto mb-4">
             <span className="font-cinzel text-xs text-gold/30 tracking-[0.3em]">✦ ✦ ✦</span>
           </div>
-          <p className="font-garamond text-parchment/60 italic">
+          <p className="font-sans text-parchment/60">
             All 78 cards of the Rider-Waite-Smith tradition, reimagined through feline eyes
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function CardLibrary() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search cards or keywords..."
-            className="w-full px-4 py-2 font-garamond text-parchment/80 outline-none"
+            className="w-full px-4 py-2 font-sans text-parchment/80 outline-none"
             style={{
               background: "rgba(17,17,17,0.9)",
               border: "1px solid rgba(201,168,76,0.4)",
@@ -163,15 +163,15 @@ export default function CardLibrary() {
                     </span>
                   ))}
                 </div>
-                <p className="font-garamond text-parchment/70 italic text-sm mb-4">{selectedCard.description}</p>
+                <p className="font-sans text-parchment/70 text-sm mb-4">{selectedCard.description}</p>
                 <div className="space-y-3">
                   <div>
                     <div className="font-cinzel text-xs text-gold/60 tracking-widest mb-1">✦ UPRIGHT</div>
-                    <p className="font-garamond text-sm text-parchment/80">{selectedCard.uprightMeaning}</p>
+                    <p className="font-sans text-sm text-parchment/80">{selectedCard.uprightMeaning}</p>
                   </div>
                   <div>
                     <div className="font-cinzel text-xs text-gold/40 tracking-widest mb-1">↓ REVERSED</div>
-                    <p className="font-garamond text-sm text-parchment/60">{selectedCard.reversedMeaning}</p>
+                    <p className="font-sans text-sm text-parchment/60">{selectedCard.reversedMeaning}</p>
                   </div>
                 </div>
               </div>

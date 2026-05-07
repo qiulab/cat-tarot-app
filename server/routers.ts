@@ -40,7 +40,7 @@ export const appRouter = router({
     generateReading: publicProcedure
       .input(
         z.object({
-          spreadType: z.enum(["single", "three-card", "celtic-cross", "yes-no"]),
+          spreadType: z.enum(["three-card", "celtic-cross", "yes-no"]),
           readerCharacterId: z.string(),
           question: z.string().optional(),
           drawnCards: z.array(

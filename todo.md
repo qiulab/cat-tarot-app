@@ -32,3 +32,15 @@
 - [x] Error handling
 - [x] TypeScript 0 errors
 - [x] Tests passing
+
+## UI Polish Pass
+- [x] Generate oracle character card art (3 images in same deck style)
+- [x] Generate deck hero image for landing page
+- [x] Replace cat emoji on hero with deck art image
+- [x] Remove Single Card spread option
+- [x] Remove reversed card logic entirely
+- [x] Draw one card at a time (sequential reveal)
+- [x] Remove all cursive/italic fonts, use readable upright text (Inter)
+- [x] Shorten oracle descriptions, cleaner layout
+- [x] Update LLM prompts: modern tone, concise, with highlights (no old-timey language)
+- [x] Make card images bigger/more prominent on mobile
