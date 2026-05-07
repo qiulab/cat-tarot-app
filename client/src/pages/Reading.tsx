@@ -45,38 +45,44 @@ function CardSwipeCarousel({
   onFlip: (i: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const PEEK = 9; // vw peeked on each side
 
-  // Sync scroll position when currentCardIndex changes externally (e.g. dot click)
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const itemWidth = el.clientWidth;
-    el.scrollTo({ left: currentCardIndex * itemWidth, behavior: "smooth" });
+    const itemW = el.clientWidth * ((100 - PEEK * 2) / 100);
+    el.scrollTo({ left: currentCardIndex * itemW, behavior: "smooth" });
   }, [currentCardIndex]);
 
-  // Update currentCardIndex when user swipes
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    const itemW = el.clientWidth * ((100 - PEEK * 2) / 100);
+    const idx = Math.round(el.scrollLeft / itemW);
     if (idx !== currentCardIndex) onIndexChange(idx);
   }, [currentCardIndex, onIndexChange]);
 
   return (
     <div className="relative w-full mb-6">
-      {/* Fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a, transparent)" }} />
-      <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a, transparent)" }} />
+      <div className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a 30%, transparent)" }} />
+      <div className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a 30%, transparent)" }} />
       <div
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex overflow-x-auto snap-x snap-mandatory"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"] }}
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"],
+          paddingLeft: `${PEEK}vw`,
+          paddingRight: `${PEEK}vw`,
+        }}
       >
         {drawnCards.map((dc, i) => (
           <div
             key={i}
-            className="flex-shrink-0 w-full flex justify-center items-center snap-center py-2"
+            className="flex-shrink-0 snap-center py-2 flex justify-center items-center"
+            style={{ width: `${100 - PEEK * 2}vw`, minWidth: `${100 - PEEK * 2}vw` }}
           >
             <SingleCardFlip
               drawnCard={dc}
@@ -86,20 +92,23 @@ function CardSwipeCarousel({
           </div>
         ))}
       </div>
-      {/* Arrow hint buttons */}
       {drawnCards.length > 1 && (
-        <div className="flex justify-between px-4 mt-2">
-          <button
-            onClick={() => onIndexChange(Math.max(0, currentCardIndex - 1))}
-            disabled={currentCardIndex === 0}
-            className="font-cinzel text-gold/40 hover:text-gold text-2xl disabled:opacity-10 transition-colors"
-          >&#8249;</button>
-          <span className="font-cinzel text-gold/30 text-xs self-center tracking-widest">SWIPE</span>
-          <button
-            onClick={() => onIndexChange(Math.min(drawnCards.length - 1, currentCardIndex + 1))}
-            disabled={currentCardIndex === drawnCards.length - 1}
-            className="font-cinzel text-gold/40 hover:text-gold text-2xl disabled:opacity-10 transition-colors"
-          >&#8250;</button>
+        <div className="flex flex-col items-center gap-2 mt-3">
+          <div className="flex gap-2">
+            {drawnCards.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => onIndexChange(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: i === currentCardIndex ? "20px" : "6px",
+                  height: "6px",
+                  background: i === currentCardIndex ? "#c9a84c" : "rgba(201,168,76,0.25)",
+                }}
+              />
+            ))}
+          </div>
+          <span className="font-cinzel text-gold/30 text-xs tracking-widest">← swipe →</span>
         </div>
       )}
     </div>
@@ -117,69 +126,82 @@ function OracleCarousel({
   onSelect: (id: string) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const CARD_WIDTH = 190;
-  const GAP = 20;
+  const CARD_WIDTH = 170;
+  const GAP = 16;
 
-  // Center the middle card on mount
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
     const middleIndex = Math.floor(characters.length / 2);
     const offset = middleIndex * (CARD_WIDTH + GAP) - (el.clientWidth / 2 - CARD_WIDTH / 2);
-    el.scrollLeft = offset;
+    el.scrollLeft = Math.max(0, offset);
   }, [characters.length]);
 
-  // Scroll to selected card when selectedId changes
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el || !selectedId) return;
+    if (!el || !selectedId || el.scrollWidth <= el.clientWidth) return;
     const idx = characters.findIndex(c => c.id === selectedId);
     if (idx === -1) return;
     const offset = idx * (CARD_WIDTH + GAP) - (el.clientWidth / 2 - CARD_WIDTH / 2);
-    el.scrollTo({ left: offset, behavior: "smooth" });
+    el.scrollTo({ left: Math.max(0, offset), behavior: "smooth" });
   }, [selectedId, characters]);
 
+  const OracleCard = ({ r }: { r: ReaderCharacter }) => (
+    <button
+      key={r.id}
+      onClick={() => { onSelect(r.id); if (navigator.vibrate) navigator.vibrate(20); }}
+      className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold"
+      style={{
+        background: "rgba(17,17,17,0.85)",
+        borderColor: selectedId === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)",
+        transform: selectedId === r.id ? "scale(1.05)" : "scale(1)",
+        transition: "transform 0.3s ease, border-color 0.3s ease",
+        opacity: selectedId === r.id ? 1 : 0.75,
+      }}
+    >
+      <div className="overflow-hidden" style={{ aspectRatio: "3/4" }}>
+        <img src={r.image} alt={r.name} className="w-full h-full object-cover" />
+      </div>
+      <div className="p-3">
+        <div className="font-cinzel text-gold text-xs tracking-wide mb-1">{r.name}</div>
+        <div className="font-cinzel text-xs" style={{ color: r.accentColor, fontSize: "0.6rem" }}>{r.title}</div>
+      </div>
+    </button>
+  );
+
   return (
-    <div className="relative w-full overflow-hidden">
-      {/* Fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a, transparent)" }} />
-      <div className="absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a, transparent)" }} />
-      <div
-        ref={scrollRef}
-        className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"] }}
-      >
-        {/* Leading spacer to allow first card to center */}
-        <div className="flex-shrink-0" style={{ width: "calc(50vw - 95px - 20px)" }} />
+    <div className="relative w-full">
+      {/* Desktop: all 3 side by side */}
+      <div className="hidden md:flex justify-center gap-5">
         {characters.map(r => (
-          <button
-            key={r.id}
-            onClick={() => onSelect(r.id)}
-            className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold flex-shrink-0 snap-center"
-            style={{
-              background: "rgba(17,17,17,0.85)",
-              borderColor: selectedId === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)",
-              width: `${CARD_WIDTH}px`,
-              transform: selectedId === r.id ? "scale(1.04)" : "scale(1)",
-              transition: "transform 0.3s ease, border-color 0.3s ease",
-            }}
-          >
-            <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
-              <img src={r.image} alt={r.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="p-3">
-              <div className="font-cinzel text-gold text-xs tracking-wide mb-1">{r.name}</div>
-              <div className="font-cinzel text-xs" style={{ color: r.accentColor, fontSize: "0.6rem" }}>{r.title}</div>
-            </div>
-          </button>
+          <div key={r.id} style={{ width: "200px" }}>
+            <OracleCard r={r} />
+          </div>
         ))}
-        {/* Trailing spacer */}
-        <div className="flex-shrink-0" style={{ width: "calc(50vw - 95px - 20px)" }} />
+      </div>
+
+      {/* Mobile: peek carousel */}
+      <div className="md:hidden relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a 40%, transparent)" }} />
+        <div className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a 40%, transparent)" }} />
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto pb-3 snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"], gap: `${GAP}px` }}
+        >
+          <div className="flex-shrink-0" style={{ width: "calc(50vw - 85px)" }} />
+          {characters.map(r => (
+            <div key={r.id} className="flex-shrink-0 snap-center" style={{ width: `${CARD_WIDTH}px` }}>
+              <OracleCard r={r} />
+            </div>
+          ))}
+          <div className="flex-shrink-0" style={{ width: "calc(50vw - 85px)" }} />
+        </div>
+        <p className="text-center font-cinzel text-gold/30 text-xs tracking-widest mt-1">← swipe to explore →</p>
       </div>
     </div>
   );
 }
-
 function CardBack({ large }: { large?: boolean }) {
   const size = large ? "w-48 md:w-64 h-72 md:h-96" : "w-20 h-32";
   return (
@@ -367,6 +389,7 @@ export default function Reading() {
       next.add(currentCardIndex);
       return next;
     });
+    if (navigator.vibrate) navigator.vibrate(40);
   };
 
   const handleNextCard = () => {
@@ -528,7 +551,7 @@ export default function Reading() {
           flippedCards={flippedCards}
           currentCardIndex={currentCardIndex}
           onIndexChange={setCurrentCardIndex}
-          onFlip={(i) => setFlippedCards(prev => { const n = new Set(prev); n.add(i); return n; })}
+          onFlip={(i) => { setFlippedCards(prev => { const n = new Set(prev); n.add(i); return n; }); if (navigator.vibrate) navigator.vibrate(40); }}
         />
         {/* Actions */}
         <div className="flex flex-col items-center gap-3">
@@ -660,6 +683,17 @@ export default function Reading() {
               style={{ letterSpacing: "0.2em" }}
             >
               New Reading
+            </button>
+            <button
+              onClick={() => {
+                const text = `✦ My Mystic Paws Tarot Reading ✦\n\nOracle: ${reader?.name}\nSpread: ${spread?.name}\nCards: ${drawnCards.map(dc => dc.card.name).join(", ")}\n\n${interpretation}\n\n— mystic-paws-tarot`;
+                navigator.clipboard.writeText(text).then(() => toast.success("Reading copied to clipboard!")).catch(() => toast.error("Could not copy"));
+                if (navigator.vibrate) navigator.vibrate(30);
+              }}
+              className="font-cinzel tracking-widest text-sm px-8 py-3 border border-gold/40 text-gold/60 hover:border-gold hover:text-gold transition-all duration-300 uppercase"
+              style={{ letterSpacing: "0.2em" }}
+            >
+              Share Reading
             </button>
             <Link href="/history">
               <button

@@ -57,3 +57,10 @@
 - [x] Card draw carousel: native touch/swipe scroll + touch-action pan-x
 - [x] LLM loading: full-screen mystical loading animation (orbiting stars, floating card, shimmer bar)
 - [x] General UX audit: swipe hint text added below oracle carousel
+
+## Features Round 4
+- [x] Share button on reading result (copy to clipboard)
+- [x] Haptic feedback on card flip (Web Vibration API)
+- [x] Oracle carousel: peek adjacent cards on mobile, desktop shows all 3 side by side
+- [x] Card draw carousel: full-width snap carousel with peek
+- [x] Ambient mystical background music with mute/unmute toggle (bottom-right)

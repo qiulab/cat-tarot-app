@@ -9,6 +9,7 @@ import Reading from "./pages/Reading";
 import CardLibrary from "./pages/CardLibrary";
 import History from "./pages/History";
 import ParticleBackground from "./components/ParticleBackground";
+import AmbientMusic from "./components/AmbientMusic";
 
 function Router() {
   return (
@@ -39,6 +40,7 @@ function App() {
             }}
           />
           <ParticleBackground />
+          <AmbientMusic />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
