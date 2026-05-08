@@ -114,6 +114,51 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Spreads */}
+        <div className="ornate-divider max-w-2xl mx-auto px-6 mb-10">
+          <span className="font-cinzel text-xs text-amber-600/40 tracking-[0.3em]">◆ The Spreads ◆</span>
+        </div>
+
+        <section className="container max-w-5xl mx-auto px-6 mb-16">
+          {/* items-stretch makes all 3 cards the same height */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
+            {Object.values(SPREAD_TYPES).map((spread, i) => (
+              <motion.div
+                key={spread.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
+                className="h-full"
+              >
+                <Link href={`/reading?spread=${spread.id}`}>
+                  <div
+                    className={`relative h-full flex flex-col justify-between p-5 text-center cursor-pointer transition-all duration-300 hover:glow-gold hover:scale-105 group border rounded-sm ${SPREAD_COLORS[spread.id] ?? "border-amber-700/40"}`}
+                    style={{ background: "rgba(17,17,17,0.8)" }}
+                  >
+                    <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-amber-600/30" />
+                    <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-amber-600/30" />
+                    <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-amber-600/30" />
+                    <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-amber-600/30" />
+                    {/* Top content */}
+                    <div>
+                      <div className="font-cinzel text-amber-400 text-sm tracking-widest mb-2 group-hover:text-amber-300 transition-colors">
+                        {spread.name}
+                      </div>
+                      <div className="font-sans text-xs text-amber-100/55 leading-relaxed">
+                        {spread.description}
+                      </div>
+                    </div>
+                    {/* Bottom badge — always pinned to bottom */}
+                    <div className="mt-4 font-cinzel text-xs text-amber-600/40 tracking-widest">
+                      {spread.cardCount} {spread.cardCount === 1 ? "card" : "cards"}
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
         {/* Oracles */}
         <div className="ornate-divider max-w-2xl mx-auto px-6 mb-10">
           <span className="font-cinzel text-xs text-amber-600/40 tracking-[0.3em]">◆ Choose Your Oracle ◆</span>
