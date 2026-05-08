@@ -64,3 +64,9 @@
 - [x] Oracle carousel: peek adjacent cards on mobile, desktop shows all 3 side by side
 - [x] Card draw carousel: full-width snap carousel with peek
 - [x] Ambient mystical background music with mute/unmute toggle (bottom-right)
+
+## UI Fixes Round 5
+- [x] Spread cards: equal height (stretch to tallest), text vertically centered
+- [x] Oracle carousel: cards centered on desktop, not left-aligned
+- [x] Mobile oracle page: fix top content being cut off (scroll/padding issue)
+- [x] Page transitions: smooth fade/slide animation between all route changes

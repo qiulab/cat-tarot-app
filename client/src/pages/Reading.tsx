@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { TAROT_CARDS, READER_CHARACTERS, SPREAD_TYPES, type TarotCard, type ReaderCharacter } from "@shared/tarotData";
@@ -171,8 +172,8 @@ function OracleCarousel({
 
   return (
     <div className="relative w-full">
-      {/* Desktop: all 3 side by side */}
-      <div className="hidden md:flex justify-center gap-5">
+      {/* Desktop: all 3 side by side, centered */}
+      <div className="hidden md:flex justify-center items-stretch gap-5">
         {characters.map(r => (
           <div key={r.id} style={{ width: "200px" }}>
             <OracleCard r={r} />
@@ -181,7 +182,7 @@ function OracleCarousel({
       </div>
 
       {/* Mobile: peek carousel */}
-      <div className="md:hidden relative overflow-hidden">
+      <div className="md:hidden relative overflow-hidden pt-2">
         <div className="absolute left-0 top-0 bottom-0 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a 40%, transparent)" }} />
         <div className="absolute right-0 top-0 bottom-0 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a 40%, transparent)" }} />
         <div
@@ -320,12 +321,12 @@ function SmallCard({ drawnCard }: { drawnCard: DrawnCard }) {
         {drawnCard.position}
       </div>
       <div
-        className="w-16 h-24 rounded overflow-hidden"
+        className="w-24 h-36 rounded overflow-hidden"
         style={{ border: "1px solid rgba(201,168,76,0.5)", boxShadow: "0 0 8px rgba(201,168,76,0.15)" }}
       >
         <img src={drawnCard.card.image} alt={drawnCard.card.name} className="w-full h-full object-cover" />
       </div>
-      <div className="font-cinzel text-gold text-center" style={{ fontSize: "0.55rem", letterSpacing: "0.05em", maxWidth: "4rem" }}>
+      <div className="font-cinzel text-gold text-center" style={{ fontSize: "0.6rem", letterSpacing: "0.05em", maxWidth: "6rem" }}>
         {drawnCard.card.name}
       </div>
     </div>
@@ -346,6 +347,8 @@ export default function Reading() {
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
   const [interpretation, setInterpretation] = useState("");
   const [sessionId] = useState(getSessionId);
+  // Scroll to top on every step change
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
 
   const spread = SPREAD_TYPES[selectedSpread as keyof typeof SPREAD_TYPES];
   const reader = READER_CHARACTERS.find(r => r.id === selectedReader)!;
@@ -429,21 +432,23 @@ export default function Reading() {
   // ── Select Spread ────────────────────────────────────────────
   if (step === "select-spread") {
     return (
-      <PageWrapper>
+      <PageWrapper key={step}>
         <BackLink />
         <SectionTitle>Choose Your Spread</SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto items-stretch">
           {Object.values(SPREAD_TYPES).map(s => (
             <button
               key={s.id}
               onClick={() => { setSelectedSpread(s.id); setStep("select-reader"); }}
-              className="deco-border p-6 text-center transition-all duration-300 hover:glow-gold"
+              className="deco-border h-full flex flex-col justify-between p-6 text-center transition-all duration-300 hover:glow-gold"
               style={{ background: "rgba(17,17,17,0.85)", borderColor: selectedSpread === s.id ? "#c9a84c" : "rgba(201,168,76,0.35)" }}
             >
-              <div className="font-cinzel text-gold text-sm tracking-widest mb-2">{s.name}</div>
-              <div className="font-cinzel text-gold/30 text-lg mb-3">{"✦".repeat(Math.min(s.cardCount, 5))}</div>
-              <div className="font-sans text-xs text-parchment/60 leading-relaxed">{s.description}</div>
-              <div className="mt-3 font-cinzel text-xs text-gold/40">{s.cardCount} {s.cardCount === 1 ? "card" : "cards"}</div>
+              <div>
+                <div className="font-cinzel text-gold text-sm tracking-widest mb-2">{s.name}</div>
+                <div className="font-cinzel text-gold/30 text-lg mb-3">{"✦".repeat(Math.min(s.cardCount, 5))}</div>
+                <div className="font-sans text-xs text-parchment/60 leading-relaxed">{s.description}</div>
+              </div>
+              <div className="mt-4 font-cinzel text-xs text-gold/40">{s.cardCount} {s.cardCount === 1 ? "card" : "cards"}</div>
             </button>
           ))}
         </div>
@@ -454,14 +459,17 @@ export default function Reading() {
   // ── Select Reader ────────────────────────────────────────────
   if (step === "select-reader") {
     return (
-      <PageWrapper>
+      <PageWrapper key={step}>
         <BackLink onClick={() => setStep("select-spread")} />
         <SectionTitle>Choose Your Oracle</SectionTitle>
-        <OracleCarousel
-          characters={READER_CHARACTERS}
-          selectedId={selectedReader}
-          onSelect={(id) => { setSelectedReader(id); setStep("ask-question"); }}
-        />
+        {/* Extra top padding on mobile so the oracle cards aren't clipped */}
+        <div className="pt-2 md:pt-0">
+          <OracleCarousel
+            characters={READER_CHARACTERS}
+            selectedId={selectedReader}
+            onSelect={(id) => { setSelectedReader(id); setStep("ask-question"); }}
+          />
+        </div>
         <p className="font-cinzel text-gold/30 text-xs text-center tracking-widest mt-4">SWIPE OR TAP TO CHOOSE</p>
       </PageWrapper>
     );
@@ -470,7 +478,7 @@ export default function Reading() {
   // ── Ask Question ─────────────────────────────────────────────
   if (step === "ask-question") {
     return (
-      <PageWrapper>
+      <PageWrapper key={step}>
         <BackLink onClick={() => setStep("select-reader")} />
         <SectionTitle>Your Question</SectionTitle>
         <div className="max-w-xl mx-auto text-center">
@@ -525,7 +533,7 @@ export default function Reading() {
       setCurrentCardIndex(drawnCards.length - 1);
     };
     return (
-      <PageWrapper>
+      <PageWrapper key={step}>
         <BackLink onClick={() => setStep("ask-question")} />
         {/* Progress dots */}
         {drawnCards.length > 1 && (
@@ -610,23 +618,13 @@ export default function Reading() {
   // ── Reading Result ────────────────────────────────────────────
   if (step === "reading") {
     return (
-      <PageWrapper>
+      <PageWrapper key={step}>
         <div className="max-w-3xl mx-auto">
-          {/* Reader header */}
-          <div className="text-center mb-8">
-            <div
-              className="w-20 h-28 mx-auto rounded overflow-hidden mb-3"
-              style={{ border: "1px solid rgba(201,168,76,0.5)" }}
-            >
-              {reader && <img src={reader.image} alt={reader.name} className="w-full h-full object-cover" />}
-            </div>
-            <h2 className="font-cinzel text-gold text-xl tracking-widest mb-1">{reader?.name}</h2>
-            <div className="font-cinzel text-xs tracking-widest" style={{ color: reader?.accentColor }}>
-              {reader?.title}
-            </div>
-            {question && (
-              <p className="font-sans text-parchment/50 mt-3 text-sm">"{question}"</p>
-            )}
+          {/* Reader name + question only — no portrait */}
+          <div className="text-center mb-6">
+            <h2 className="font-cinzel text-gold text-lg tracking-widest mb-1">{reader?.name}</h2>
+            <div className="font-cinzel text-xs tracking-widest" style={{ color: reader?.accentColor }}>{reader?.title}</div>
+            {question && <p className="font-sans text-parchment/50 mt-3 text-sm">"{question}"</p>}
           </div>
 
           {/* Cards drawn */}
@@ -752,7 +750,14 @@ function CelticCrossLayout({
 // ── Shared Layout ──────────────────────────────────────────────
 function PageWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen" style={{ zIndex: 1 }}>
+    <motion.div
+      className="relative min-h-screen"
+      style={{ zIndex: 1 }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       <div
         className="fixed inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(74,29,122,0.2) 0%, transparent 70%)", zIndex: 0 }}
@@ -760,7 +765,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
       <div className="relative container max-w-5xl mx-auto px-6 py-10" style={{ zIndex: 1 }}>
         {children}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

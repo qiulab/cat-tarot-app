@@ -15,7 +15,14 @@ export default function Home() {
   const oracleRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ zIndex: 1 }}>
+    <motion.div
+      className="relative min-h-screen"
+      style={{ zIndex: 1 }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       {/* Background gradient */}
       <div
         className="fixed inset-0 pointer-events-none"
@@ -113,30 +120,36 @@ export default function Home() {
         </div>
 
         <section className="container max-w-5xl mx-auto px-6 mb-16">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* items-stretch makes all 3 cards the same height */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
             {Object.values(SPREAD_TYPES).map((spread, i) => (
               <motion.div
                 key={spread.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
+                className="h-full"
               >
                 <Link href={`/reading?spread=${spread.id}`}>
                   <div
-                    className={`relative p-5 text-center cursor-pointer transition-all duration-300 hover:glow-gold group border rounded-sm ${SPREAD_COLORS[spread.id] ?? "border-amber-700/40"}`}
+                    className={`relative h-full flex flex-col justify-between p-5 text-center cursor-pointer transition-all duration-300 hover:glow-gold group border rounded-sm ${SPREAD_COLORS[spread.id] ?? "border-amber-700/40"}`}
                     style={{ background: "rgba(17,17,17,0.8)" }}
                   >
                     <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-amber-600/30" />
                     <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-amber-600/30" />
                     <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-amber-600/30" />
                     <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-amber-600/30" />
-                    <div className="font-cinzel text-amber-400 text-sm tracking-widest mb-2 group-hover:text-amber-300 transition-colors">
-                      {spread.name}
+                    {/* Top content */}
+                    <div>
+                      <div className="font-cinzel text-amber-400 text-sm tracking-widest mb-2 group-hover:text-amber-300 transition-colors">
+                        {spread.name}
+                      </div>
+                      <div className="font-sans text-xs text-amber-100/55 leading-relaxed">
+                        {spread.description}
+                      </div>
                     </div>
-                    <div className="font-sans text-xs text-amber-100/55 mb-2 leading-relaxed">
-                      {spread.description}
-                    </div>
-                    <div className="font-cinzel text-xs text-amber-600/40 tracking-widest">
+                    {/* Bottom badge — always pinned to bottom */}
+                    <div className="mt-4 font-cinzel text-xs text-amber-600/40 tracking-widest">
                       {spread.cardCount} {spread.cardCount === 1 ? "card" : "cards"}
                     </div>
                   </div>
@@ -146,25 +159,62 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Oracles — horizontal scroll carousel */}
+        {/* Oracles */}
         <div className="ornate-divider max-w-2xl mx-auto px-6 mb-10">
           <span className="font-cinzel text-xs text-amber-600/40 tracking-[0.3em]">◆ Choose Your Oracle ◆</span>
         </div>
 
         <section className="mb-20">
-          {/* Scroll hint arrows */}
-          <div className="flex items-center gap-3 px-6 mb-4 max-w-5xl mx-auto">
-            <button
-              onClick={() => oracleRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
-              className="font-cinzel text-amber-600/50 hover:text-amber-400 transition-colors text-lg px-2"
-              aria-label="Scroll left"
-            >
-              ‹
-            </button>
+          {/* Desktop: 3 cards centered side-by-side */}
+          <div className="hidden md:flex justify-center gap-5 px-6">
+            {READER_CHARACTERS.map((reader, i) => (
+              <motion.div
+                key={reader.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 + i * 0.15 }}
+                style={{ width: "200px" }}
+              >
+                <Link href={`/reading?reader=${reader.id}`}>
+                  <div
+                    className="deco-border overflow-hidden cursor-pointer transition-all duration-300 hover:glow-gold group"
+                    style={{ background: "rgba(17,17,17,0.85)" }}
+                  >
+                    <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                      <img
+                        src={reader.image}
+                        alt={reader.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-3 text-center">
+                      <h3 className="font-cinzel text-amber-400 text-xs tracking-wide mb-1 group-hover:text-amber-300 transition-colors">
+                        {reader.name}
+                      </h3>
+                      <div className="font-cinzel text-xs tracking-widest" style={{ color: reader.accentColor, fontSize: "0.6rem" }}>
+                        {reader.title}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Mobile: peek carousel */}
+          <div className="md:hidden relative">
+            <div className="absolute left-0 top-0 bottom-8 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0d0d1a 40%, transparent)" }} />
+            <div className="absolute right-0 top-0 bottom-8 w-10 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0d0d1a 40%, transparent)" }} />
             <div
               ref={oracleRef}
-              className="flex gap-5 overflow-x-auto pb-4 flex-1 snap-x snap-mandatory"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              className="flex overflow-x-auto pb-4 snap-x snap-mandatory"
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                gap: "16px",
+                paddingLeft: "calc(50vw - 85px)",
+                paddingRight: "calc(50vw - 85px)",
+              }}
             >
               {READER_CHARACTERS.map((reader, i) => (
                 <motion.div
@@ -173,14 +223,13 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 + i * 0.15 }}
                   className="flex-shrink-0 snap-center"
-                  style={{ width: "200px" }}
+                  style={{ width: "170px" }}
                 >
                   <Link href={`/reading?reader=${reader.id}`}>
                     <div
                       className="deco-border overflow-hidden cursor-pointer transition-all duration-300 hover:glow-gold group"
                       style={{ background: "rgba(17,17,17,0.85)" }}
                     >
-                      {/* Oracle card image — slightly smaller */}
                       <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
                         <img
                           src={reader.image}
@@ -201,13 +250,7 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
-            <button
-              onClick={() => oracleRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
-              className="font-cinzel text-amber-600/50 hover:text-amber-400 transition-colors text-lg px-2"
-              aria-label="Scroll right"
-            >
-              ›
-            </button>
+            <p className="text-center font-cinzel text-amber-600/30 text-xs tracking-widest mt-1">← swipe to explore →</p>
           </div>
         </section>
 
@@ -233,6 +276,6 @@ export default function Home() {
           </p>
         </footer>
       </div>
-    </div>
+    </motion.div>
   );
 }

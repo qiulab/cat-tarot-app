@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { TAROT_CARDS, type TarotCard } from "@shared/tarotData";
 
@@ -31,7 +32,14 @@ export default function CardLibrary() {
   });
 
   return (
-    <div className="relative min-h-screen" style={{ zIndex: 1 }}>
+    <motion.div
+      className="relative min-h-screen"
+      style={{ zIndex: 1 }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+    >
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -192,6 +200,6 @@ export default function CardLibrary() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
