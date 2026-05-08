@@ -46,7 +46,7 @@ function CardSwipeCarousel({
   onFlip: (i: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const PEEK = 9; // vw peeked on each side
+  const PEEK = 15; // vw peeked on each side — shows partial adjacent cards
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -154,10 +154,10 @@ function OracleCarousel({
       className="deco-border overflow-hidden text-center transition-all duration-300 hover:glow-gold"
       style={{
         background: "rgba(17,17,17,0.85)",
-        borderColor: selectedId === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)",
-        transform: selectedId === r.id ? "scale(1.05)" : "scale(1)",
+        borderColor: selectedId && selectedId === r.id ? "#c9a84c" : "rgba(201,168,76,0.35)",
+        transform: selectedId && selectedId === r.id ? "scale(1.05)" : "scale(1)",
         transition: "transform 0.3s ease, border-color 0.3s ease",
-        opacity: selectedId === r.id ? 1 : 0.75,
+        opacity: selectedId ? (selectedId === r.id ? 1 : 0.75) : 1,
       }}
     >
       <div className="overflow-hidden" style={{ aspectRatio: "3/4" }}>
@@ -338,9 +338,12 @@ export default function Reading() {
   const searchStr = useSearch();
   const params = new URLSearchParams(searchStr);
 
-  const [step, setStep] = useState<Step>("select-spread");
-  const [selectedSpread, setSelectedSpread] = useState<string>(params.get("spread") || "yes-no");
-  const [selectedReader, setSelectedReader] = useState<string>(params.get("reader") || "mystic-tabby");
+  const [step, setStep] = useState<Step>(
+    params.get("spread") && params.get("reader") ? "ask-question" :
+    params.get("spread") ? "select-reader" : "select-spread"
+  );
+  const [selectedSpread, setSelectedSpread] = useState<string>(params.get("spread") || "");
+  const [selectedReader, setSelectedReader] = useState<string>(params.get("reader") || "");
   const [question, setQuestion] = useState("");
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -350,7 +353,7 @@ export default function Reading() {
   // Scroll to top on every step change
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [step]);
 
-  const spread = SPREAD_TYPES[selectedSpread as keyof typeof SPREAD_TYPES];
+  const spread = SPREAD_TYPES[(selectedSpread || "yes-no") as keyof typeof SPREAD_TYPES];
   const reader = READER_CHARACTERS.find(r => r.id === selectedReader)!;
 
   const generateMutation = trpc.tarot.generateReading.useMutation({
@@ -403,7 +406,7 @@ export default function Reading() {
 
   const handleGetReading = () => {
     generateMutation.mutate({
-      spreadType: selectedSpread as "three-card" | "celtic-cross" | "yes-no",
+      spreadType: (selectedSpread || "yes-no") as "three-card" | "celtic-cross" | "yes-no",
       readerCharacterId: selectedReader,
       question: question || undefined,
       drawnCards: drawnCards.map(dc => ({
@@ -441,7 +444,7 @@ export default function Reading() {
               key={s.id}
               onClick={() => { setSelectedSpread(s.id); setStep("select-reader"); }}
               className="deco-border h-full flex flex-col justify-between p-6 text-center transition-all duration-300 hover:glow-gold"
-              style={{ background: "rgba(17,17,17,0.85)", borderColor: selectedSpread === s.id ? "#c9a84c" : "rgba(201,168,76,0.35)" }}
+              style={{ background: "rgba(17,17,17,0.85)", borderColor: selectedSpread === s.id ? "#c9a84c" : "rgba(201,168,76,0.35)", transform: selectedSpread === s.id ? "scale(1.04)" : "scale(1)", transition: "transform 0.25s ease, border-color 0.25s ease" }}
             >
               <div>
                 <div className="font-cinzel text-gold text-sm tracking-widest mb-2">{s.name}</div>

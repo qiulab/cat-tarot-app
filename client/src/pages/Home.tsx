@@ -132,7 +132,7 @@ export default function Home() {
               >
                 <Link href={`/reading?spread=${spread.id}`}>
                   <div
-                    className={`relative h-full flex flex-col justify-between p-5 text-center cursor-pointer transition-all duration-300 hover:glow-gold group border rounded-sm ${SPREAD_COLORS[spread.id] ?? "border-amber-700/40"}`}
+                    className={`relative h-full flex flex-col justify-between p-5 text-center cursor-pointer transition-all duration-300 hover:glow-gold hover:scale-105 group border rounded-sm ${SPREAD_COLORS[spread.id] ?? "border-amber-700/40"}`}
                     style={{ background: "rgba(17,17,17,0.8)" }}
                   >
                     <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-amber-600/30" />
@@ -177,7 +177,7 @@ export default function Home() {
               >
                 <Link href={`/reading?reader=${reader.id}`}>
                   <div
-                    className="deco-border overflow-hidden cursor-pointer transition-all duration-300 hover:glow-gold group"
+                    className="deco-border overflow-hidden cursor-pointer transition-all duration-300 hover:glow-gold hover:scale-105 group"
                     style={{ background: "rgba(17,17,17,0.85)" }}
                   >
                     <div className="w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
